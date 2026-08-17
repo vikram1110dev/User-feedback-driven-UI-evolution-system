@@ -14,13 +14,11 @@ import {
   Monitor, 
   Sparkles, 
   Rocket, 
-  ShieldCheck, 
-  ArrowRight, 
   Lock, 
   CreditCard, 
   Compass, 
   BarChart3,
-  CheckCircle2
+  Sliders
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -40,8 +38,6 @@ export const SplitComparisonView: React.FC = () => {
   } = useEvolutionSystem();
 
   const [isDeploying, setIsDeploying] = useState(false);
-  const [splitMode, setSplitMode] = useState<'side-by-side' | 'tab-toggle'>('side-by-side');
-  const [activeTabPreview, setActiveTabPreview] = useState<'staging' | 'production'>('staging');
 
   const handleDeploy = async () => {
     if (!activeProposal) return;
@@ -70,6 +66,7 @@ export const SplitComparisonView: React.FC = () => {
     { id: 'pricing', label: 'Pricing Matrix', icon: <CreditCard className="w-3.5 h-3.5" /> },
     { id: 'hero', label: 'Hero Landing', icon: <Compass className="w-3.5 h-3.5" /> },
     { id: 'dashboard', label: 'Telemetry Hub', icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { id: 'settings', label: 'Settings', icon: <Sliders className="w-3.5 h-3.5" /> },
   ];
 
   const renderScreen = (flags: typeof prodEvolutionFlags, isStaging: boolean) => {
@@ -86,25 +83,25 @@ export const SplitComparisonView: React.FC = () => {
   const getDeviceFrameStyles = () => {
     switch (deviceMode) {
       case 'mobile':
-        return 'max-w-[360px] min-h-[640px] rounded-[32px] border-4 border-slate-800 shadow-2xl mx-auto';
+        return 'w-full max-w-[360px] min-h-[640px] rounded-[32px] border-4 border-slate-800 shadow-2xl mx-auto';
       case 'tablet':
-        return 'max-w-[620px] min-h-[600px] rounded-[24px] border-4 border-slate-800 shadow-2xl mx-auto';
+        return 'w-full max-w-[620px] min-h-[600px] rounded-[24px] border-4 border-slate-800 shadow-2xl mx-auto';
       default:
         return 'w-full min-h-[550px] rounded-2xl border border-white/10';
     }
   };
 
   return (
-    <div className="py-6 px-4 max-w-7xl mx-auto space-y-6 animate-fade-in">
+    <div className="py-6 px-3 sm:px-6 max-w-7xl mx-auto space-y-6 animate-fade-in">
       
       {/* Top Header & Deployment Controls */}
-      <div className="glass-panel p-6 rounded-3xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel p-5 sm:p-6 rounded-3xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <Badge variant="cyan" size="sm" dot>Live Split Preview</Badge>
-            <span className="text-xs text-slate-400">Comparing Production ({currentProdVersion}) vs Staging (Approved Proposal)</span>
+            <span className="text-xs text-slate-400">Production ({currentProdVersion}) vs Staging (Approved Changes)</span>
           </div>
-          <h1 className="text-2xl font-bold font-display text-white">
+          <h1 className="text-xl sm:text-2xl font-bold font-display text-white">
             Visual Verification & Deployment Gate
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -126,7 +123,7 @@ export const SplitComparisonView: React.FC = () => {
       </div>
 
       {/* Viewport and Screen Controls Bar */}
-      <div className="glass-card p-3 rounded-2xl border border-white/10 flex flex-wrap items-center justify-between gap-4">
+      <div className="glass-card p-3 rounded-2xl border border-white/10 flex flex-wrap items-center justify-between gap-3">
         
         {/* Page Switcher */}
         <div className="flex items-center gap-1 p-1 bg-slate-950/80 rounded-xl border border-white/5 overflow-x-auto">
@@ -134,7 +131,7 @@ export const SplitComparisonView: React.FC = () => {
             <button
               key={p.id}
               onClick={() => setCurrentPage(p.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                 currentPage === p.id
                   ? 'bg-indigo-600 text-white shadow-md'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
@@ -152,21 +149,21 @@ export const SplitComparisonView: React.FC = () => {
           <div className="flex items-center gap-1 p-1 bg-slate-950/80 rounded-xl border border-white/5">
             <button
               onClick={() => setDeviceMode('mobile')}
-              className={`p-1.5 rounded-lg text-xs ${deviceMode === 'mobile' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+              className={`p-1.5 rounded-lg text-xs ${deviceMode === 'mobile' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
               title="Mobile (360px)"
             >
               <Smartphone className="w-4 h-4" />
             </button>
             <button
               onClick={() => setDeviceMode('tablet')}
-              className={`p-1.5 rounded-lg text-xs ${deviceMode === 'tablet' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+              className={`p-1.5 rounded-lg text-xs ${deviceMode === 'tablet' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
               title="Tablet (620px)"
             >
               <Tablet className="w-4 h-4" />
             </button>
             <button
               onClick={() => setDeviceMode('desktop')}
-              className={`p-1.5 rounded-lg text-xs ${deviceMode === 'desktop' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
+              className={`p-1.5 rounded-lg text-xs ${deviceMode === 'desktop' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
               title="Desktop (Full)"
             >
               <Monitor className="w-4 h-4" />
@@ -191,8 +188,8 @@ export const SplitComparisonView: React.FC = () => {
             <Badge variant="neutral" size="sm">Baseline</Badge>
           </div>
 
-          <div className="bg-slate-950 p-4 rounded-3xl border border-white/10 overflow-hidden">
-            <div className={`${getDeviceFrameStyles()} bg-slate-950/90 p-3`}>
+          <div className="bg-slate-950 p-3 sm:p-4 rounded-3xl border border-white/10 overflow-hidden flex justify-center">
+            <div className={`${getDeviceFrameStyles()} bg-slate-950/90 p-2 sm:p-3`}>
               {renderScreen(prodEvolutionFlags, false)}
             </div>
           </div>
@@ -210,8 +207,8 @@ export const SplitComparisonView: React.FC = () => {
             <Badge variant="success" size="sm" dot>Validated (5/5 Tests)</Badge>
           </div>
 
-          <div className="bg-slate-950 p-4 rounded-3xl border border-indigo-500/40 shadow-2xl shadow-indigo-500/10 overflow-hidden">
-            <div className={`${getDeviceFrameStyles()} bg-slate-950/90 p-3`}>
+          <div className="bg-slate-950 p-3 sm:p-4 rounded-3xl border border-indigo-500/40 shadow-2xl shadow-indigo-500/10 overflow-hidden flex justify-center">
+            <div className={`${getDeviceFrameStyles()} bg-slate-950/90 p-2 sm:p-3`}>
               {renderScreen(stagingEvolutionFlags, true)}
             </div>
           </div>
