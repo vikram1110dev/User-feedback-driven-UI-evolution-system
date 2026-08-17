@@ -12,12 +12,12 @@ const AppContent: React.FC = () => {
   const { activeView, toastMessage } = useEvolutionSystem();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-teal-500 selection:text-white">
       {/* Top Navbar */}
       <SystemNavbar />
 
       {/* Main Viewport Content */}
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full bg-slate-50">
         {activeView === 'target-app' && <TargetAppFrame />}
         {activeView === 'admin-studio' && <AdminDashboardOverview />}
         {activeView === 'pipeline-console' && <PipelineConsoleView />}
