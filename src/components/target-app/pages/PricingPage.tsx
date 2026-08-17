@@ -62,73 +62,73 @@ export const PricingPage: React.FC<PricingPageProps> = ({ flags }) => {
   ];
 
   return (
-    <div className="py-6 px-2 sm:px-4 max-w-6xl mx-auto" data-component-id="PricingPage.tsx">
+    <div className="py-6 px-3 sm:px-6 max-w-6xl mx-auto" data-component-id="PricingPage.tsx">
       
       {/* State banner */}
       {isHighContrast ? (
-        <div className="mb-6 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2.5 max-w-lg mx-auto shadow-md">
-          <div className="p-1 rounded-lg bg-emerald-500/20 text-emerald-400 flex-shrink-0">
-            <Sparkles className="w-3.5 h-3.5" />
+        <div className="mb-8 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm flex items-center gap-3 max-w-xl mx-auto shadow-xs">
+          <div className="p-1.5 rounded-xl bg-emerald-200/70 text-emerald-800 flex-shrink-0">
+            <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-semibold block">UI Evolved: 7.2:1 WCAG AAA Contrast Rating</span>
-            <span className="text-[11px] text-emerald-400/80">High-luminosity feature text tokens & vibrant status badges</span>
+            <span className="font-bold block text-sm">UI Evolved: 7.2:1 WCAG AAA Contrast Rating</span>
+            <span className="text-xs text-emerald-700">High-luminosity feature text tokens & vibrant status badges</span>
           </div>
         </div>
       ) : (
-        <div className="mb-6 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300/90 text-xs flex items-center gap-2.5 max-w-lg mx-auto">
-          <div className="p-1 rounded-lg bg-amber-500/20 text-amber-400 flex-shrink-0">
-            <AlertCircle className="w-3.5 h-3.5" />
+        <div className="mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-sm flex items-center gap-3 max-w-xl mx-auto shadow-xs">
+          <div className="p-1.5 rounded-xl bg-amber-200/70 text-amber-800 flex-shrink-0">
+            <AlertCircle className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-semibold block">Baseline UI: Low Contrast Ratio (2.8:1)</span>
-            <span className="text-[11px] text-amber-300/70">Muted grey text on dark navy cards fails WCAG AA</span>
+            <span className="font-bold block text-sm">Baseline UI: Low Contrast Ratio (2.8:1)</span>
+            <span className="text-xs text-amber-700">Muted grey text on dark navy cards fails WCAG AA</span>
           </div>
         </div>
       )}
 
       {/* Header & Annual Toggle */}
-      <div className="text-center max-w-2xl mx-auto mb-8">
-        <h2 className="text-2xl sm:text-4xl font-extrabold font-display text-white tracking-tight">
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <h2 className="text-3xl sm:text-5xl font-extrabold font-display text-slate-900 tracking-tight">
           Continuous UI Evolution at Scale
         </h2>
-        <p className="mt-2 text-xs sm:text-sm text-slate-400">
+        <p className="mt-3 text-sm sm:text-base text-slate-600 font-medium">
           Transform real customer feedback into safe, admin-approved production UI deployments.
         </p>
 
         {/* Billing Switch */}
-        <div className="mt-5 inline-flex items-center gap-3 p-1 rounded-xl bg-slate-900/90 border border-white/10 text-xs">
+        <div className="mt-6 inline-flex items-center gap-3 p-1.5 rounded-2xl bg-slate-200/70 border border-slate-300 text-sm font-semibold">
           <button
             onClick={() => setAnnualBilling(false)}
-            className={`px-3 py-1.5 rounded-lg transition-colors font-medium ${!annualBilling ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer ${!annualBilling ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
           >
-            Monthly
+            Monthly Billing
           </button>
           <button
             onClick={() => setAnnualBilling(true)}
-            className={`px-3 py-1.5 rounded-lg transition-colors font-medium flex items-center gap-1.5 ${annualBilling ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer flex items-center gap-2 ${annualBilling ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
           >
-            <span>Annual</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">20% OFF</span>
+            <span>Annual Billing</span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">20% OFF</span>
           </button>
         </div>
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
         {tiers.map((tier) => (
           <div
             key={tier.name}
             data-element-selector={`#pricing-card-${tier.name.toLowerCase().replace(/\s+/g, '-')}`}
-            className={`rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 relative ${
+            className={`rounded-3xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 relative ${
               tier.popular
-                ? 'pro-card border-indigo-500/60 shadow-2xl shadow-indigo-500/15 md:-translate-y-1'
-                : 'pro-card border-white/10 hover:border-white/20'
+                ? 'bg-white border-2 border-teal-600 shadow-xl shadow-teal-600/10 md:-translate-y-2'
+                : 'bg-white border border-slate-200 shadow-md hover:border-slate-300'
             }`}
           >
             {tier.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge variant="primary" size="sm" dot className="shadow-md font-bold">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <Badge variant="teal" size="md" dot className="shadow-md font-bold px-4 py-1.5">
                   Recommended Tier
                 </Badge>
               </div>
@@ -136,26 +136,26 @@ export const PricingPage: React.FC<PricingPageProps> = ({ flags }) => {
 
             <div>
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold font-display text-white">{tier.name}</h3>
-                {tier.popular && <Zap className="w-4 h-4 text-indigo-400" />}
+                <h3 className="text-xl font-bold font-display text-slate-900">{tier.name}</h3>
+                {tier.popular && <Zap className="w-5 h-5 text-teal-600" />}
               </div>
-              <p className="mt-1.5 text-xs text-slate-400 min-h-[32px]">{tier.description}</p>
+              <p className="mt-2 text-sm text-slate-500 min-h-[40px] leading-relaxed">{tier.description}</p>
 
-              <div className="mt-5 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold font-display text-white tracking-tight">{tier.price}</span>
-                <span className="text-xs text-slate-400">{tier.period}</span>
+              <div className="mt-6 flex items-baseline gap-1.5">
+                <span className="text-4xl sm:text-5xl font-black font-display text-slate-900 tracking-tight">{tier.price}</span>
+                <span className="text-sm font-semibold text-slate-500">{tier.period}</span>
               </div>
 
               {/* Feature list */}
-              <div className="mt-6 space-y-2.5">
-                <p className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Features Included:</p>
+              <div className="mt-8 space-y-3.5">
+                <p className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Features Included:</p>
                 {tier.features.map((feat, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-xs">
-                    <div className={`p-0.5 rounded-full mt-0.5 flex-shrink-0 ${isHighContrast ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-600'}`}>
-                      <Check className="w-3 h-3" />
+                  <div key={idx} className="flex items-start gap-3 text-sm">
+                    <div className={`p-1 rounded-full mt-0.5 flex-shrink-0 ${isHighContrast ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
+                      <Check className="w-3.5 h-3.5" />
                     </div>
-                    {/* Contrast change applied here! */}
-                    <span className={`text-[11px] leading-relaxed ${isHighContrast ? 'text-slate-100 font-medium' : 'text-slate-500 font-normal'}`}>
+                    {/* Contrast change */}
+                    <span className={`text-sm leading-relaxed ${isHighContrast ? 'text-slate-900 font-semibold' : 'text-slate-400 font-normal'}`}>
                       {feat}
                     </span>
                   </div>
@@ -163,12 +163,12 @@ export const PricingPage: React.FC<PricingPageProps> = ({ flags }) => {
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-white/5">
+            <div className="mt-8 pt-6 border-t border-slate-100">
               <button
-                className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                className={`w-full py-3.5 px-5 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer ${
                   tier.popular
-                    ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-md shadow-indigo-500/25'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                    ? 'bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-lg shadow-teal-600/30'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200'
                 }`}
               >
                 {tier.cta}

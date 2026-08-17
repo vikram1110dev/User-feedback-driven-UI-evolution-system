@@ -7,7 +7,6 @@ import {
   SplitSquareVertical, 
   History, 
   Layout, 
-  ExternalLink,
   GitBranch
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
@@ -29,15 +28,15 @@ export const SystemNavbar: React.FC = () => {
       id: 'target-app',
       label: 'Live Target App',
       shortLabel: 'Target App',
-      icon: <Layout className="w-3.5 h-3.5" />,
+      icon: <Layout className="w-4 h-4" />,
     },
     {
       id: 'admin-studio',
-      label: 'Admin Studio',
+      label: 'Admin Studio (HITL)',
       shortLabel: 'Admin HITL',
-      icon: <ShieldCheck className="w-3.5 h-3.5" />,
+      icon: <ShieldCheck className="w-4 h-4" />,
       badge: pendingCount > 0 ? (
-        <span className="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-rose-500 text-white animate-pulse">
+        <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-rose-500 text-white animate-pulse">
           {pendingCount}
         </span>
       ) : undefined,
@@ -46,9 +45,9 @@ export const SystemNavbar: React.FC = () => {
       id: 'pipeline-console',
       label: 'Test Pipeline',
       shortLabel: 'Pipeline',
-      icon: <FlaskConical className={`w-3.5 h-3.5 ${isPipelineRunning ? 'animate-spin text-cyan-400' : ''}`} />,
+      icon: <FlaskConical className={`w-4 h-4 ${isPipelineRunning ? 'animate-spin text-teal-600' : ''}`} />,
       badge: isPipelineRunning ? (
-        <span className="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+        <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-teal-100 text-teal-800 border border-teal-300">
           Running
         </span>
       ) : undefined,
@@ -57,52 +56,52 @@ export const SystemNavbar: React.FC = () => {
       id: 'live-preview-split',
       label: 'Split Preview',
       shortLabel: 'Preview',
-      icon: <SplitSquareVertical className="w-3.5 h-3.5" />,
+      icon: <SplitSquareVertical className="w-4 h-4" />,
     },
     {
       id: 'audit-traceability',
       label: 'Version Audit',
       shortLabel: 'Audit',
-      icon: <History className="w-3.5 h-3.5" />,
+      icon: <History className="w-4 h-4" />,
     }
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#090d16]/90 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-xl shadow-xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-3">
         
         {/* Brand Identity */}
         <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-500 p-px shadow-md shadow-indigo-500/20 flex items-center justify-center">
-            <div className="w-full h-full bg-[#080b11] rounded-[7px] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 p-0.5 shadow-md shadow-teal-600/25 flex items-center justify-center">
+            <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-teal-600" />
             </div>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-display font-bold text-sm tracking-tight text-white">
-                Evolv<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">UI</span>
+              <span className="font-display font-extrabold text-lg sm:text-xl tracking-tight text-slate-900">
+                Evolv<span className="text-teal-600">UI</span>
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <Badge variant="teal" size="sm" dot>
                 {currentProdVersion} Live
-              </span>
+              </Badge>
             </div>
+            <p className="text-xs text-slate-500 hidden md:block font-medium">User Feedback Driven UI Evolution System</p>
           </div>
         </div>
 
         {/* Center Nav Segmented Control */}
-        <nav className="flex items-center gap-0.5 p-1 bg-slate-900/80 rounded-xl border border-white/[0.08] backdrop-blur-md overflow-x-auto max-w-full">
+        <nav className="flex items-center gap-1 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto max-w-full">
           {navItems.map((item) => {
             const isActive = activeView === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveView(item.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 whitespace-nowrap ${
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    ? 'bg-teal-600 text-white shadow-md shadow-teal-600/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
                 }`}
               >
                 {item.icon}
@@ -115,9 +114,9 @@ export const SystemNavbar: React.FC = () => {
         </nav>
 
         {/* Right Status / Repo Link */}
-        <div className="hidden md:flex items-center gap-2.5 flex-shrink-0">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/60 border border-white/5 text-[11px] text-slate-300">
-            <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+        <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-xs font-semibold text-teal-800">
+            <ShieldCheck className="w-4 h-4 text-teal-600" />
             <span>HITL Enforced</span>
           </div>
 
@@ -125,7 +124,7 @@ export const SystemNavbar: React.FC = () => {
             href="https://github.com/vikram1110dev/User-feedback-driven-UI-evolution-system"
             target="_blank"
             rel="noreferrer"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-slate-200"
             title="View on GitHub"
           >
             <GitBranch className="w-4 h-4" />

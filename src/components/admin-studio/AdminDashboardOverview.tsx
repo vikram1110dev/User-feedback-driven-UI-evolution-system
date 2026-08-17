@@ -6,12 +6,9 @@ import { StatCard } from '../ui/StatCard';
 import { 
   ShieldCheck, 
   Sparkles, 
-  Layers, 
   CheckCircle2, 
   AlertCircle, 
-  FlaskConical, 
-  MessageSquare, 
-  ArrowUpRight 
+  MessageSquare 
 } from 'lucide-react';
 import { UserFeedback } from '../../types/feedback';
 
@@ -38,29 +35,29 @@ export const AdminDashboardOverview: React.FC = () => {
   };
 
   return (
-    <div className="py-6 px-4 max-w-7xl mx-auto space-y-6">
+    <div className="py-8 px-4 sm:px-6 max-w-7xl mx-auto space-y-8 animate-fade-in">
       
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-white tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-extrabold font-display text-slate-900 tracking-tight">
             Human-in-the-Loop Governance Studio
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-sm sm:text-base text-slate-600 mt-1.5 font-medium">
             Review user feedback, inspect AI UI Change Proposals, approve modifications, and control frontend deployments.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="px-3.5 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-indigo-400" />
+          <div className="px-4 py-2.5 rounded-2xl bg-teal-50 border border-teal-200 text-teal-800 text-sm font-bold flex items-center gap-2.5 shadow-2xs">
+            <ShieldCheck className="w-5 h-5 text-teal-600" />
             <span>Zero Unsupervised Deployments Policy</span>
           </div>
         </div>
       </div>
 
       {/* KPI Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           title="Captured Feedbacks"
           value={feedbacks.length}
@@ -88,8 +85,8 @@ export const AdminDashboardOverview: React.FC = () => {
         />
       </div>
 
-      {/* Main Split Layout: Left Inbox, Right Proposal Reviewer */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Main Split Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* Left Column: Feedback Inbox (4 cols) */}
         <div className="lg:col-span-4 h-full">
@@ -104,10 +101,10 @@ export const AdminDashboardOverview: React.FC = () => {
           {currentReviewProposal ? (
             <ProposalReviewDrawer proposal={currentReviewProposal} />
           ) : (
-            <div className="glass-card p-12 rounded-3xl border border-white/10 text-center text-slate-400">
-              <Sparkles className="w-12 h-12 text-indigo-400 mx-auto mb-3 opacity-50" />
-              <h3 className="text-base font-bold text-white">Select a Proposal to Review</h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center shadow-md">
+              <Sparkles className="w-14 h-14 text-teal-600 mx-auto mb-4 opacity-70" />
+              <h3 className="text-xl font-bold text-slate-900">Select a Proposal to Review</h3>
+              <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto">
                 Click any feedback item from the inbox to inspect the AI diagnostic, proposed code patches, and approval controls.
               </p>
             </div>

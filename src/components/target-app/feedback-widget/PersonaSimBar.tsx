@@ -7,39 +7,39 @@ export const PersonaSimBar: React.FC = () => {
   const { triggerSyntheticScenario } = useEvolutionSystem();
 
   const getIcon = (id: string) => {
-    if (id.includes('mobile')) return <Smartphone className="w-3 h-3 text-rose-400" />;
-    if (id.includes('pricing')) return <Eye className="w-3 h-3 text-amber-400" />;
-    if (id.includes('hero')) return <MousePointerClick className="w-3 h-3 text-indigo-400" />;
-    return <Table className="w-3 h-3 text-cyan-400" />;
+    if (id.includes('mobile')) return <Smartphone className="w-4 h-4 text-rose-600" />;
+    if (id.includes('pricing')) return <Eye className="w-4 h-4 text-amber-600" />;
+    if (id.includes('hero')) return <MousePointerClick className="w-4 h-4 text-teal-600" />;
+    return <Table className="w-4 h-4 text-cyan-600" />;
   };
 
   return (
-    <div className="w-full bg-[#0b0f19] border-b border-white/[0.06] px-4 py-2">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2.5">
+    <div className="w-full bg-white border-b border-slate-200 px-4 py-3 shadow-2xs">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
         
         {/* Label */}
-        <div className="flex items-center gap-2 text-xs">
-          <div className="p-1 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <Zap className="w-3 h-3" />
+        <div className="flex items-center gap-2.5 text-xs sm:text-sm">
+          <div className="p-1.5 rounded-xl bg-teal-100 text-teal-800 border border-teal-200">
+            <Zap className="w-4 h-4" />
           </div>
-          <span className="font-semibold text-slate-200">Simulation Persona Engine:</span>
-          <span className="text-slate-400 hidden lg:inline text-[11px]">Inject live synthetic feedback payloads to test UI evolution</span>
+          <span className="font-bold text-slate-900">Synthetic User Feedback Simulation:</span>
+          <span className="text-slate-500 hidden lg:inline text-xs">Inject 1-click real user feedback to trigger autonomous AI evolution</span>
         </div>
 
         {/* Persona quick triggers */}
-        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+        <div className="flex items-center gap-2.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
           {SYNTHETIC_PERSONA_SCENARIOS.map((scenario) => (
             <button
               key={scenario.id}
               onClick={() => triggerSyntheticScenario(scenario.id)}
-              className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-900/90 hover:bg-indigo-950/60 border border-white/[0.08] hover:border-indigo-500/40 text-[11px] font-medium text-slate-200 transition-all whitespace-nowrap shadow-sm group"
+              className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-teal-50 border border-slate-200 hover:border-teal-400 text-xs sm:text-sm font-medium text-slate-800 transition-all whitespace-nowrap shadow-xs group cursor-pointer"
             >
-              <div className="p-1 rounded bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
+              <div className="p-1.5 rounded-lg bg-white border border-slate-200 flex items-center justify-center group-hover:border-teal-300 transition-colors shadow-2xs">
                 {getIcon(scenario.id)}
               </div>
               <div className="text-left">
-                <span className="font-semibold text-slate-200 block leading-tight">{scenario.personaName.split(' ')[0]}</span>
-                <span className="text-[10px] text-slate-400 group-hover:text-indigo-300 transition-colors block leading-tight">{scenario.title.slice(0, 24)}...</span>
+                <span className="font-bold text-slate-900 block leading-tight">{scenario.personaName.split(' ')[0]}</span>
+                <span className="text-xs text-slate-500 group-hover:text-teal-700 transition-colors block leading-tight">{scenario.title.slice(0, 26)}...</span>
               </div>
             </button>
           ))}

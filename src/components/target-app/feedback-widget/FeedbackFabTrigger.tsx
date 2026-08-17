@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useEvolutionSystem } from '../../../context/EvolutionSystemContext';
-import { MessageSquarePlus, MousePointer, MapPin, Sparkles, X, ChevronUp } from 'lucide-react';
+import { MessageSquarePlus, MousePointer, MapPin, Sparkles, ChevronUp } from 'lucide-react';
 
 interface FeedbackFabTriggerProps {
   onOpenModal: () => void;
@@ -10,8 +10,6 @@ export const FeedbackFabTrigger: React.FC<FeedbackFabTriggerProps> = ({ onOpenMo
   const { 
     setIsFeedbackModeActive, 
     setIsPinDropModeActive,
-    isFeedbackModeActive,
-    isPinDropModeActive
   } = useEvolutionSystem();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -38,15 +36,15 @@ export const FeedbackFabTrigger: React.FC<FeedbackFabTriggerProps> = ({ onOpenMo
       
       {/* Expanded Menu Actions */}
       {isOpen && (
-        <div className="flex flex-col items-end gap-2 animate-slide-up mb-2">
+        <div className="flex flex-col items-end gap-2.5 animate-slide-up mb-2">
           
           {/* Action 1: Select UI Element */}
           <button
             onClick={handleInspectElement}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-indigo-600/30 text-slate-200 hover:text-white border border-white/10 hover:border-indigo-500/50 shadow-xl backdrop-blur-xl transition-all group"
+            className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white hover:bg-teal-50 text-slate-800 hover:text-teal-900 border border-slate-300 hover:border-teal-400 shadow-xl transition-all group cursor-pointer"
           >
-            <span className="text-xs font-semibold">Inspect UI Component</span>
-            <div className="p-1.5 rounded-xl bg-indigo-500/20 text-indigo-400 group-hover:scale-110 transition-transform">
+            <span className="text-sm font-bold">Inspect UI Component</span>
+            <div className="p-2 rounded-xl bg-teal-100 text-teal-700 group-hover:scale-110 transition-transform">
               <MousePointer className="w-4 h-4" />
             </div>
           </button>
@@ -54,10 +52,10 @@ export const FeedbackFabTrigger: React.FC<FeedbackFabTriggerProps> = ({ onOpenMo
           {/* Action 2: Drop Pin */}
           <button
             onClick={handleDropPin}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-rose-600/30 text-slate-200 hover:text-white border border-white/10 hover:border-rose-500/50 shadow-xl backdrop-blur-xl transition-all group"
+            className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white hover:bg-rose-50 text-slate-800 hover:text-rose-900 border border-slate-300 hover:border-rose-400 shadow-xl transition-all group cursor-pointer"
           >
-            <span className="text-xs font-semibold">Drop Viewport Pin</span>
-            <div className="p-1.5 rounded-xl bg-rose-500/20 text-rose-400 group-hover:scale-110 transition-transform">
+            <span className="text-sm font-bold">Drop Viewport Pin</span>
+            <div className="p-2 rounded-xl bg-rose-100 text-rose-700 group-hover:scale-110 transition-transform">
               <MapPin className="w-4 h-4" />
             </div>
           </button>
@@ -65,10 +63,10 @@ export const FeedbackFabTrigger: React.FC<FeedbackFabTriggerProps> = ({ onOpenMo
           {/* Action 3: General Feedback */}
           <button
             onClick={handleOpenForm}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-emerald-600/30 text-slate-200 hover:text-white border border-white/10 hover:border-emerald-500/50 shadow-xl backdrop-blur-xl transition-all group"
+            className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white hover:bg-emerald-50 text-slate-800 hover:text-emerald-900 border border-slate-300 hover:border-emerald-400 shadow-xl transition-all group cursor-pointer"
           >
-            <span className="text-xs font-semibold">Quick Feedback Form</span>
-            <div className="p-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform">
+            <span className="text-sm font-bold">Quick Feedback Form</span>
+            <div className="p-2 rounded-xl bg-emerald-100 text-emerald-700 group-hover:scale-110 transition-transform">
               <MessageSquarePlus className="w-4 h-4" />
             </div>
           </button>
@@ -79,12 +77,12 @@ export const FeedbackFabTrigger: React.FC<FeedbackFabTriggerProps> = ({ onOpenMo
       {/* Main Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center gap-2.5 px-5 py-3.5 rounded-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 text-white font-semibold text-sm shadow-2xl shadow-indigo-500/40 border border-white/20 hover:scale-105 active:scale-95 transition-all duration-200"
+        className="group flex items-center gap-3 px-6 py-4 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-bold text-sm sm:text-base shadow-2xl shadow-teal-600/40 border border-teal-500 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
       >
-        <Sparkles className="w-4 h-4 animate-spin" style={{ animationDuration: '6s' }} />
-        <span>Report UI / Suggest Improvement</span>
+        <Sparkles className="w-5 h-5 animate-spin" style={{ animationDuration: '6s' }} />
+        <span>Report UI / Suggest Change</span>
         <div className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-          <ChevronUp className="w-4 h-4" />
+          <ChevronUp className="w-5 h-5" />
         </div>
       </button>
 
