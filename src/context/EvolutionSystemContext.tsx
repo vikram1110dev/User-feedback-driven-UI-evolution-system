@@ -7,6 +7,7 @@ import { createProposalFromFeedback, createProposalFromFeedbackAsync } from '../
 import { runAutomatedPipeline } from '../engine/automatedTester';
 import { INITIAL_DEPLOYMENTS, INITIAL_AUDIT_LOGS } from '../data/initialSystemState';
 import { SYNTHETIC_PERSONA_SCENARIOS, generateSyntheticFeedback } from '../engine/syntheticFeedback';
+import { reSynthesizeProposalWithCustomPrompt } from '../engine/geminiService';
 
 export type ActiveAppView = 'target-app' | 'admin-studio' | 'live-preview-split' | 'pipeline-console' | 'audit-traceability';
 export type TargetAppPage = 'hero' | 'login' | 'pricing' | 'dashboard' | 'settings';
@@ -91,6 +92,7 @@ interface EvolutionSystemContextType {
   approveProposal: (proposalId: string, adminNotes?: string) => Promise<void>;
   rejectProposal: (proposalId: string, adminNotes?: string) => void;
   requestProposalModifications: (proposalId: string, adminNotes?: string) => void;
+  reSynthesizeProposalWithPrompt: (proposalId: string, customInstruction: string) => Promise<void>;
   startAutomatedTesting: (proposalId: string) => Promise<void>;
   deployProposalToProd: (proposalId: string) => Promise<void>;
   rollbackToVersion: (version: string) => Promise<void>;
@@ -414,6 +416,30 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
     showToast(`Requested modifications for Proposal #${proposalId.slice(-6)}.`);
   };
 
+  // 5b. Admin: Re-Synthesize Proposal with Custom Prompt
+  const reSynthesizeProposalWithPrompt = async (proposalId: string, customInstruction: string) => {
+    const prop = proposals.find(p => p.id === proposalId) || activeProposal;
+    if (!prop || !customInstruction.trim()) return;
+
+    setIsGeneratingProposal(true);
+    try {
+      const refined = await reSynthesizeProposalWithCustomPrompt(
+        prop,
+        customInstruction,
+        geminiApiKey,
+        selectedModel
+      );
+
+      setProposals(prev => prev.map(p => p.id === proposalId ? refined : p));
+      setActiveProposal(refined);
+
+      addAuditLog('PROPOSAL_GENERATED', `AI re-synthesized Proposal #${proposalId.slice(-6)}: "${customInstruction.slice(0, 45)}..."`, { proposalId });
+      showToast(`✨ Re-synthesized Proposal #${proposalId.slice(-6)} with custom directives!`);
+    } finally {
+      setIsGeneratingProposal(false);
+    }
+  };
+
   // 6. Automated Testing Pipeline
   const startAutomatedTesting = async (proposalId: string) => {
     const prop = proposals.find(p => p.id === proposalId) || activeProposal;
@@ -576,6 +602,7 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
         approveProposal,
         rejectProposal,
         requestProposalModifications,
+        reSynthesizeProposalWithPrompt,
         startAutomatedTesting,
         deployProposalToProd,
         rollbackToVersion,

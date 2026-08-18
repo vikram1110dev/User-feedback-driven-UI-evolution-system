@@ -28,11 +28,16 @@ export const ProposalReviewDrawer: React.FC<ProposalReviewDrawerProps> = ({ prop
     approveProposal, 
     rejectProposal, 
     requestProposalModifications,
+    reSynthesizeProposalWithPrompt,
+    geminiApiKey,
+    selectedModel,
     setActiveView
   } = useEvolutionSystem();
 
   const [adminNotes, setAdminNotes] = useState('');
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [isReSynthesizing, setIsReSynthesizing] = useState(false);
 
   const linkedFeedback = feedbacks.find(f => f.id === proposal.feedbackId);
 
@@ -51,6 +56,17 @@ export const ProposalReviewDrawer: React.FC<ProposalReviewDrawerProps> = ({ prop
 
   const handleRequestMod = () => {
     requestProposalModifications(proposal.id, adminNotes);
+  };
+
+  const handleReSynthesize = async () => {
+    if (!customPrompt.trim()) return;
+    setIsReSynthesizing(true);
+    try {
+      await reSynthesizeProposalWithPrompt(proposal.id, customPrompt);
+      setCustomPrompt('');
+    } finally {
+      setIsReSynthesizing(false);
+    }
   };
 
   const getPriorityBadge = (p: string) => {
@@ -73,6 +89,13 @@ export const ProposalReviewDrawer: React.FC<ProposalReviewDrawerProps> = ({ prop
       default: return <Badge variant="neutral" size="md">{s}</Badge>;
     }
   };
+
+  const promptChips = [
+    'Enforce WCAG AAA 7:1 Contrast',
+    'Glassmorphic backdrop blur & teal glow',
+    'Expand touch target to 52px minimum',
+    'Add responsive mobile flex wrapping'
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -102,6 +125,61 @@ export const ProposalReviewDrawer: React.FC<ProposalReviewDrawerProps> = ({ prop
               <p className="text-xs text-teal-700 font-medium">Admin sign-off required</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Interactive AI Prompt Tuning & Directive Card */}
+      <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-6 sm:p-7 rounded-3xl border border-slate-800 shadow-lg text-white space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-100">Interactive AI Prompt Tuning & Mutation Directives</h3>
+              <p className="text-xs text-slate-400">Refine the AI code patch with custom styling tokens, constraints, or directives</p>
+            </div>
+          </div>
+          <span className="text-[11px] font-mono text-teal-300 font-semibold bg-teal-950/80 px-2.5 py-1 rounded-lg border border-teal-800">
+            {geminiApiKey ? `⚡ ${selectedModel}` : '🤖 Autonomous Sim Engine'}
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-slate-400">Quick Directives:</span>
+          {promptChips.map((chip, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setCustomPrompt(chip)}
+              className="text-xs px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors cursor-pointer"
+            >
+              + {chip}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <input
+            type="text"
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            placeholder="e.g. 'Use emerald-500 gradient, add micro-hover bounce and 48px touch target'..."
+            className="flex-1 w-full px-4 py-2.5 rounded-xl bg-slate-850 border border-slate-700 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-teal-400 font-medium"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleReSynthesize();
+            }}
+          />
+          <Button
+            variant="gradient"
+            size="sm"
+            onClick={handleReSynthesize}
+            loading={isReSynthesizing}
+            disabled={!customPrompt.trim()}
+            icon={<Sparkles className="w-4 h-4" />}
+          >
+            ⚡ Re-Synthesize Patch
+          </Button>
         </div>
       </div>
 
