@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEvolutionSystem } from '../../../context/EvolutionSystemContext';
 import { SYNTHETIC_PERSONA_SCENARIOS } from '../../../engine/syntheticFeedback';
-import { Sparkles, Smartphone, Eye, MousePointerClick, Table, Zap } from 'lucide-react';
+import { Smartphone, Eye, MousePointerClick, Table, Zap } from 'lucide-react';
 
 export const PersonaSimBar: React.FC = () => {
   const { triggerSyntheticScenario } = useEvolutionSystem();

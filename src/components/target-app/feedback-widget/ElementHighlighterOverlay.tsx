@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useEvolutionSystem } from '../../../context/EvolutionSystemContext';
-import { MousePointer, Check, X } from 'lucide-react';
+import { MousePointer, X } from 'lucide-react';
 
 interface ElementHighlighterOverlayProps {
   onElementSelected: (selector: string) => void;

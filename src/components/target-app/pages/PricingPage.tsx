@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EvolutionFlags } from '../../../context/EvolutionSystemContext';
-import { Check, Zap, Sparkles, AlertCircle, Shield } from 'lucide-react';
+import { Check, Zap, Sparkles, AlertCircle } from 'lucide-react';
 import { Badge } from '../../ui/Badge';
 
 interface PricingPageProps {

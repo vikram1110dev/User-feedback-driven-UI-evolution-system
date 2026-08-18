@@ -1,7 +1,6 @@
 import React from 'react';
 import { EvolutionFlags } from '../../../context/EvolutionSystemContext';
 import { Sparkles, Play, ShieldCheck, AlertCircle, Cpu, GitPullRequest, Eye } from 'lucide-react';
-import { Badge } from '../../ui/Badge';
 
 interface HeroLandingPageProps {
   flags: EvolutionFlags;

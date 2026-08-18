@@ -1,6 +1,6 @@
 import React from 'react';
 import { EvolutionFlags } from '../../../context/EvolutionSystemContext';
-import { Activity, Users, Zap, Sparkles, AlertCircle, RefreshCw, ArrowUpRight } from 'lucide-react';
+import { Activity, Users, Zap, Sparkles, AlertCircle } from 'lucide-react';
 import { StatCard } from '../../ui/StatCard';
 import { Badge } from '../../ui/Badge';
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useEvolutionSystem } from '../../context/EvolutionSystemContext';
-import { UserFeedback, FeedbackCategory } from '../../types/feedback';
+import { UserFeedback } from '../../types/feedback';
 import { 
   Inbox, 
   Search, 
@@ -9,16 +9,9 @@ import {
   Monitor, 
   Tablet, 
   ArrowRight, 
-  Plus, 
-  Zap, 
-  Filter, 
-  Trash2, 
-  Sparkles, 
-  Clock, 
-  TrendingUp,
   Play,
   Pause,
-  RefreshCw
+  Plus
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -45,7 +38,6 @@ export const FeedbackInboxView: React.FC<FeedbackInboxViewProps> = ({
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'pending' | 'new' | 'deployed'>('all');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'rating-low' | 'priority'>('newest');
   const [isLivePolling, setIsLivePolling] = useState(false);
 
@@ -98,8 +90,6 @@ export const FeedbackInboxView: React.FC<FeedbackInboxViewProps> = ({
     
     if (!matchesSearch) return false;
 
-    if (selectedCategory !== 'all' && fb.category !== selectedCategory) return false;
-
     if (selectedFilter === 'all') return true;
     if (selectedFilter === 'new') return fb.status === 'new' || fb.status === 'analyzed';
     if (selectedFilter === 'pending') return fb.status === 'proposal-created';
@@ -109,8 +99,6 @@ export const FeedbackInboxView: React.FC<FeedbackInboxViewProps> = ({
     if (sortBy === 'rating-low') return a.rating - b.rating;
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
   });
-
-  const pendingCount = feedbacks.filter(f => f.status === 'proposal-created' || f.status === 'new').length;
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden flex flex-col h-full">

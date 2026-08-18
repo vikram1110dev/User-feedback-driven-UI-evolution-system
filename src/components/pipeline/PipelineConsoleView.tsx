@@ -1,7 +1,6 @@
 import React from 'react';
 import { useEvolutionSystem } from '../../context/EvolutionSystemContext';
 import { 
-  FlaskConical, 
   CheckCircle2, 
   XCircle, 
   Clock, 
@@ -12,10 +11,13 @@ import {
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 
+import { createDefaultTestCases } from '../../engine/automatedTester';
+
 export const PipelineConsoleView: React.FC = () => {
   const { 
     pipelineRun, 
     activeProposal, 
+    proposals,
     startAutomatedTesting, 
     setActiveView 
   } = useEvolutionSystem();
@@ -23,9 +25,35 @@ export const PipelineConsoleView: React.FC = () => {
   const isRunning = pipelineRun?.status === 'running';
   const isSuccess = pipelineRun?.status === 'success';
 
+  const currentProp = activeProposal || proposals[0] || {
+    id: 'prop-default',
+    feedbackId: 'fb-default',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    title: 'UI Quality Gate Pipeline',
+    problemSummary: 'Automated test suite verification',
+    rootCauseAnalysis: 'Staging pre-flight quality check',
+    category: 'ui-issue',
+    priority: 'high',
+    affectedPage: 'login',
+    affectedComponents: ['LoginForm.tsx', 'LoginPage.tsx'],
+    suggestedSolution: 'Execute quality gates',
+    patches: [],
+    riskAssessment: { level: 'low', riskFactors: [], mitigationStrategy: '' },
+    expectedImpact: { uxImprovement: '', targetMetrics: [], accessibilityScoreDelta: 15 },
+    status: 'pending-admin-review',
+  };
+
+  const displayTestCases = pipelineRun?.testCases || createDefaultTestCases(currentProp);
+  const displayLogs = (pipelineRun?.logs && pipelineRun.logs.length > 0) ? pipelineRun.logs : [
+    '[STAGING ENVIRONMENT READY] Isolated testing sandbox initialized.',
+    `[TARGET PROPOSAL] #${currentProp.id.slice(-6)}: "${currentProp.title.slice(0, 50)}..."`,
+    '[AWAITING TRIGGER] Click "Re-run Test Suite" above or Approve proposal in Admin Studio to execute quality gates.',
+  ];
+
   const handleRerun = () => {
-    if (activeProposal) {
-      startAutomatedTesting(activeProposal.id);
+    if (currentProp) {
+      startAutomatedTesting(currentProp.id);
     }
   };
 
@@ -94,11 +122,11 @@ export const PipelineConsoleView: React.FC = () => {
               Automated Quality Gates
             </h3>
             <span className="text-xs font-bold text-slate-600 bg-slate-200 px-3 py-1 rounded-full">
-              {pipelineRun?.testCases.filter(t => t.status === 'passed').length || 0} / {pipelineRun?.testCases.length || 5} Passed
+              {displayTestCases.filter(t => t.status === 'passed').length} / {displayTestCases.length} Passed
             </span>
           </div>
 
-          {pipelineRun?.testCases.map((tc) => (
+          {displayTestCases.map((tc) => (
             <div
               key={tc.id}
               className={`p-5 rounded-3xl border transition-all duration-300 shadow-xs ${
@@ -155,7 +183,7 @@ export const PipelineConsoleView: React.FC = () => {
             </div>
 
             <div className="p-5 font-mono text-xs text-slate-300 max-h-[480px] overflow-y-auto space-y-2 leading-relaxed bg-slate-950">
-              {pipelineRun?.logs.map((log, idx) => (
+              {displayLogs.map((log, idx) => (
                 <div
                   key={idx}
                   className={`${

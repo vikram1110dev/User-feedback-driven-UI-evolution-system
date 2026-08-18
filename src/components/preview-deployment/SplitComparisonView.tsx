@@ -8,7 +8,6 @@ import { DashboardPage } from '../target-app/pages/DashboardPage';
 import { SettingsPage } from '../target-app/pages/SettingsPage';
 
 import { 
-  SplitSquareVertical, 
   Smartphone, 
   Tablet, 
   Monitor, 

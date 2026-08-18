@@ -131,3 +131,26 @@ export function createProposalFromFeedback(feedback: UserFeedback): UIChangeProp
 
   return proposal;
 }
+
+import { analyzeAndProposeWithGemini } from './geminiService';
+
+export async function createProposalFromFeedbackAsync(
+  feedback: UserFeedback,
+  apiKey?: string,
+  model?: string
+): Promise<{ proposal: UIChangeProposal; isAIGenerated: boolean; error?: string }> {
+  if (apiKey && apiKey.trim().length > 0) {
+    try {
+      const aiProposal = await analyzeAndProposeWithGemini(feedback, apiKey, model);
+      return { proposal: aiProposal, isAIGenerated: true };
+    } catch (err: any) {
+      console.warn('Gemini API call failed, falling back to autonomous engine:', err.message);
+      const fallbackProp = createProposalFromFeedback(feedback);
+      return { proposal: fallbackProp, isAIGenerated: false, error: err.message };
+    }
+  }
+
+  const fallbackProp = createProposalFromFeedback(feedback);
+  return { proposal: fallbackProp, isAIGenerated: false };
+}
+

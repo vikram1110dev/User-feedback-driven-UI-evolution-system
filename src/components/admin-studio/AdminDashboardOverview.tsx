@@ -18,7 +18,11 @@ export const AdminDashboardOverview: React.FC = () => {
     proposals, 
     activeProposal, 
     setActiveProposal, 
-    deployments 
+    deployments,
+    geminiApiKey,
+    selectedModel,
+    setCurrentPage,
+    setActiveView
   } = useEvolutionSystem();
 
   const [selectedFeedback, setSelectedFeedback] = useState<UserFeedback | null>(feedbacks[0] || null);
@@ -48,10 +52,22 @@ export const AdminDashboardOverview: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="px-4 py-2.5 rounded-2xl bg-teal-50 border border-teal-200 text-teal-800 text-sm font-bold flex items-center gap-2.5 shadow-2xs">
-            <ShieldCheck className="w-5 h-5 text-teal-600" />
-            <span>Zero Unsupervised Deployments Policy</span>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => {
+              setCurrentPage('settings');
+              setActiveView('target-app');
+            }}
+            className="px-3.5 py-2 rounded-2xl bg-white border border-slate-200 text-slate-800 text-xs font-bold flex items-center gap-2 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
+            title="Configure AI API & Models in Settings"
+          >
+            <Sparkles className="w-4 h-4 text-teal-600" />
+            <span>AI: {geminiApiKey ? selectedModel : 'Autonomous Sim'}</span>
+          </button>
+
+          <div className="px-4 py-2 rounded-2xl bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold flex items-center gap-2 shadow-2xs">
+            <ShieldCheck className="w-4 h-4 text-teal-600" />
+            <span>Zero Unsupervised Deployments</span>
           </div>
         </div>
       </div>

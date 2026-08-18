@@ -17,7 +17,10 @@ export const SystemNavbar: React.FC = () => {
     setActiveView, 
     proposals, 
     currentProdVersion,
-    pipelineRun
+    pipelineRun,
+    geminiApiKey,
+    selectedModel,
+    setCurrentPage
   } = useEvolutionSystem();
 
   const pendingCount = proposals.filter(p => p.status === 'pending-admin-review').length;
@@ -107,9 +110,30 @@ export const SystemNavbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Status / Repo Link */}
-        <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-xs font-semibold text-teal-800">
+        {/* Right Status / AI Status / Repo Link */}
+        <div className="hidden lg:flex items-center gap-2.5 flex-shrink-0">
+          <button
+            onClick={() => {
+              setCurrentPage('settings');
+              setActiveView('target-app');
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-xs font-semibold text-slate-800 transition-colors cursor-pointer"
+            title="Configure Gemini AI Engine & Models"
+          >
+            {geminiApiKey && geminiApiKey.trim().length > 0 ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-teal-900 font-bold">{selectedModel}</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                <span className="text-slate-700 font-medium">Autonomous Sim AI</span>
+              </>
+            )}
+          </button>
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-xs font-semibold text-teal-800">
             <ShieldCheck className="w-4 h-4 text-teal-600" />
             <span>HITL Enforced</span>
           </div>
@@ -129,3 +153,4 @@ export const SystemNavbar: React.FC = () => {
     </header>
   );
 };
+

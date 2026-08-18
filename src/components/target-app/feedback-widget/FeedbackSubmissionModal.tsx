@@ -25,7 +25,13 @@ export const FeedbackSubmissionModal: React.FC<FeedbackSubmissionModalProps> = (
   onClose,
   selectedSelector,
 }) => {
-  const { currentPage, deviceMode, submitUserFeedback } = useEvolutionSystem();
+  const { 
+    currentPage, 
+    deviceMode, 
+    submitUserFeedback, 
+    geminiApiKey, 
+    selectedModel 
+  } = useEvolutionSystem();
 
   const [category, setCategory] = useState<FeedbackCategory>('ui-issue');
   const [rating, setRating] = useState<number>(2);
@@ -66,6 +72,8 @@ export const FeedbackSubmissionModal: React.FC<FeedbackSubmissionModalProps> = (
     }
   };
 
+  const isLiveGemini = geminiApiKey && geminiApiKey.trim().length > 0;
+
   return (
     <div id="feedback-modal-root" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
       <div className="w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 border border-slate-300 shadow-2xl relative overflow-hidden max-h-[90vh] overflow-y-auto">
@@ -76,7 +84,18 @@ export const FeedbackSubmissionModal: React.FC<FeedbackSubmissionModalProps> = (
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900">Report UI Issue or Suggestion</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900">Report UI Issue or Suggestion</h2>
+                {isLiveGemini ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-teal-100 text-teal-800 border border-teal-200 uppercase">
+                    ⚡ {selectedModel}
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-700 border border-slate-200 uppercase">
+                    🤖 Autonomous Engine
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-slate-500 font-medium">AI will analyze this feedback & generate a structured proposal</p>
             </div>
           </div>
@@ -87,6 +106,7 @@ export const FeedbackSubmissionModal: React.FC<FeedbackSubmissionModalProps> = (
             <X className="w-6 h-6" />
           </button>
         </div>
+
 
         <form onSubmit={handleSubmit} className="space-y-6">
           
@@ -221,7 +241,7 @@ export const FeedbackSubmissionModal: React.FC<FeedbackSubmissionModalProps> = (
 
           {/* Action buttons */}
           <div className="pt-4 flex items-center justify-end gap-3.5 border-t border-slate-200">
-            <Button type="button" variant="secondary" size="md" onClick={onClose}>
+            <Button type="button" variant="secondary" size="md" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
             <Button
@@ -231,7 +251,11 @@ export const FeedbackSubmissionModal: React.FC<FeedbackSubmissionModalProps> = (
               loading={isSubmitting}
               icon={<Send className="w-5 h-5" />}
             >
-              Analyze & Propose UI Change
+              {isSubmitting
+                ? isLiveGemini
+                  ? 'Gemini Synthesizing Patches...'
+                  : 'Analyzing & Synthesizing Patches...'
+                : 'Analyze & Propose UI Change'}
             </Button>
           </div>
 

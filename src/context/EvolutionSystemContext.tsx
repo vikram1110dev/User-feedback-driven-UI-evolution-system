@@ -3,7 +3,7 @@ import { UserFeedback, DeviceContext, PinLocation } from '../types/feedback';
 import { UIChangeProposal } from '../types/proposal';
 import { PipelineRun } from '../types/pipeline';
 import { DeploymentVersion, AuditLogEntry } from '../types/deployment';
-import { createProposalFromFeedback } from '../engine/proposalEngine';
+import { createProposalFromFeedback, createProposalFromFeedbackAsync } from '../engine/proposalEngine';
 import { runAutomatedPipeline } from '../engine/automatedTester';
 import { INITIAL_DEPLOYMENTS, INITIAL_AUDIT_LOGS } from '../data/initialSystemState';
 import { SYNTHETIC_PERSONA_SCENARIOS, generateSyntheticFeedback } from '../engine/syntheticFeedback';
@@ -16,6 +16,33 @@ export interface EvolutionFlags {
   pricingHighContrast: boolean;
   heroDynamicCTA: boolean;
   dashboardComfortDensity: boolean;
+}
+
+const STORAGE_KEYS = {
+  FEEDBACKS: 'evolvui_feedbacks_v1',
+  PROPOSALS: 'evolvui_proposals_v1',
+  DEPLOYMENTS: 'evolvui_deployments_v1',
+  AUDIT_LOGS: 'evolvui_audit_logs_v1',
+  PROD_FLAGS: 'evolvui_prod_flags_v1',
+  STAGING_FLAGS: 'evolvui_staging_flags_v1',
+  PROD_VERSION: 'evolvui_prod_version_v1',
+  GEMINI_API_KEY: 'evolvui_gemini_api_key_v1',
+  GEMINI_MODEL: 'evolvui_gemini_model_v1',
+};
+
+const DEFAULT_FLAGS: EvolutionFlags = {
+  loginMobileOptimized: false,
+  pricingHighContrast: false,
+  heroDynamicCTA: false,
+  dashboardComfortDensity: false,
+};
+
+function getInitialInitialSeed() {
+  const scenario = SYNTHETIC_PERSONA_SCENARIOS[0];
+  const fb = generateSyntheticFeedback(scenario);
+  const prop = createProposalFromFeedback(fb);
+  fb.proposalId = prop.id;
+  return { fb, prop };
 }
 
 interface EvolutionSystemContextType {
@@ -51,6 +78,13 @@ interface EvolutionSystemContextType {
   prodEvolutionFlags: EvolutionFlags;
   stagingEvolutionFlags: EvolutionFlags;
 
+  // AI API Configuration
+  geminiApiKey: string;
+  setGeminiApiKey: (key: string) => void;
+  selectedModel: string;
+  setSelectedModel: (model: string) => void;
+  isGeneratingProposal: boolean;
+
   // Actions
   submitUserFeedback: (feedbackData: Partial<UserFeedback>) => Promise<UserFeedback>;
   triggerSyntheticScenario: (scenarioId: string) => Promise<void>;
@@ -60,6 +94,7 @@ interface EvolutionSystemContextType {
   startAutomatedTesting: (proposalId: string) => Promise<void>;
   deployProposalToProd: (proposalId: string) => Promise<void>;
   rollbackToVersion: (version: string) => Promise<void>;
+  resetToDefaults: () => void;
   toastMessage: string | null;
   showToast: (msg: string) => void;
 }
@@ -77,30 +112,128 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
   const [selectedElementSelector, setSelectedElementSelector] = useState<string | null>(null);
   const [currentPinLocation, setCurrentPinLocation] = useState<PinLocation | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isGeneratingProposal, setIsGeneratingProposal] = useState<boolean>(false);
 
-  // Entities
-  const [feedbacks, setFeedbacks] = useState<UserFeedback[]>([]);
-  const [proposals, setProposals] = useState<UIChangeProposal[]>([]);
-  const [activeProposal, setActiveProposal] = useState<UIChangeProposal | null>(null);
+  // Gemini API Configuration (loaded from LocalStorage)
+  const [geminiApiKey, setGeminiApiKeyState] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEYS.GEMINI_API_KEY) || '';
+  });
+  const [selectedModel, setSelectedModelState] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEYS.GEMINI_MODEL) || 'gemini-2.5-flash';
+  });
+
+  const setGeminiApiKey = (key: string) => {
+    setGeminiApiKeyState(key);
+    localStorage.setItem(STORAGE_KEYS.GEMINI_API_KEY, key);
+  };
+
+  const setSelectedModel = (model: string) => {
+    setSelectedModelState(model);
+    localStorage.setItem(STORAGE_KEYS.GEMINI_MODEL, model);
+  };
+
+  // Entities with LocalStorage Persistence
+  const [feedbacks, setFeedbacks] = useState<UserFeedback[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.FEEDBACKS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse saved feedbacks:', e);
+    }
+    const seed = getInitialInitialSeed();
+    return [seed.fb];
+  });
+
+  const [proposals, setProposals] = useState<UIChangeProposal[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PROPOSALS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse saved proposals:', e);
+    }
+    const seed = getInitialInitialSeed();
+    return [seed.prop];
+  });
+
+  const [activeProposal, setActiveProposal] = useState<UIChangeProposal | null>(() => {
+    return proposals[0] || null;
+  });
+
   const [pipelineRun, setPipelineRun] = useState<PipelineRun | null>(null);
-  const [deployments, setDeployments] = useState<DeploymentVersion[]>(INITIAL_DEPLOYMENTS);
-  const [currentProdVersion, setCurrentProdVersion] = useState<string>('v1.0.0');
-  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
 
-  // Evolution Flags
-  const [prodEvolutionFlags, setProdEvolutionFlags] = useState<EvolutionFlags>({
-    loginMobileOptimized: false,
-    pricingHighContrast: false,
-    heroDynamicCTA: false,
-    dashboardComfortDensity: false,
+  const [deployments, setDeployments] = useState<DeploymentVersion[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DEPLOYMENTS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse saved deployments:', e);
+    }
+    return INITIAL_DEPLOYMENTS;
   });
 
-  const [stagingEvolutionFlags, setStagingEvolutionFlags] = useState<EvolutionFlags>({
-    loginMobileOptimized: false,
-    pricingHighContrast: false,
-    heroDynamicCTA: false,
-    dashboardComfortDensity: false,
+  const [currentProdVersion, setCurrentProdVersion] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEYS.PROD_VERSION) || 'v1.0.0';
   });
+
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse saved audit logs:', e);
+    }
+    return INITIAL_AUDIT_LOGS;
+  });
+
+  // Evolution Flags with LocalStorage Persistence
+  const [prodEvolutionFlags, setProdEvolutionFlags] = useState<EvolutionFlags>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PROD_FLAGS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse saved prod flags:', e);
+    }
+    return DEFAULT_FLAGS;
+  });
+
+  const [stagingEvolutionFlags, setStagingEvolutionFlags] = useState<EvolutionFlags>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.STAGING_FLAGS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse saved staging flags:', e);
+    }
+    return DEFAULT_FLAGS;
+  });
+
+  // Sync state to LocalStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.FEEDBACKS, JSON.stringify(feedbacks));
+  }, [feedbacks]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.PROPOSALS, JSON.stringify(proposals));
+  }, [proposals]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.DEPLOYMENTS, JSON.stringify(deployments));
+  }, [deployments]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify(auditLogs));
+  }, [auditLogs]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.PROD_FLAGS, JSON.stringify(prodEvolutionFlags));
+  }, [prodEvolutionFlags]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.STAGING_FLAGS, JSON.stringify(stagingEvolutionFlags));
+  }, [stagingEvolutionFlags]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.PROD_VERSION, currentProdVersion);
+  }, [currentProdVersion]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -134,8 +267,10 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
     });
   };
 
-  // 1. Submit Feedback
+  // 1. Submit Feedback with Live Gemini AI Integration
   const submitUserFeedback = async (feedbackData: Partial<UserFeedback>): Promise<UserFeedback> => {
+    setIsGeneratingProposal(true);
+
     const newFb: UserFeedback = {
       id: `fb-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       timestamp: new Date().toISOString(),
@@ -153,26 +288,41 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
       status: 'analyzed',
     };
 
-    // AI Analysis & Proposal Generation
-    const proposal = createProposalFromFeedback(newFb);
-    newFb.proposalId = proposal.id;
-    newFb.status = 'proposal-created';
+    try {
+      // Async generation with Gemini or Fallback
+      const { proposal, isAIGenerated } = await createProposalFromFeedbackAsync(
+        newFb,
+        geminiApiKey,
+        selectedModel
+      );
 
-    setFeedbacks(prev => [newFb, ...prev]);
-    setProposals(prev => [proposal, ...prev]);
-    setActiveProposal(proposal);
+      newFb.proposalId = proposal.id;
+      newFb.status = 'proposal-created';
 
-    // Reset feedback UI pins/selectors
-    setIsFeedbackModeActive(false);
-    setIsPinDropModeActive(false);
-    setSelectedElementSelector(null);
-    setCurrentPinLocation(null);
+      setFeedbacks(prev => [newFb, ...prev]);
+      setProposals(prev => [proposal, ...prev]);
+      setActiveProposal(proposal);
 
-    addAuditLog('FEEDBACK_SUBMITTED', `Feedback submitted: "${newFb.title}" for ${newFb.targetPage}`, { feedbackId: newFb.id });
-    addAuditLog('PROPOSAL_GENERATED', `AI generated Change Proposal "${proposal.title}" (Priority: ${proposal.priority.toUpperCase()})`, { proposalId: proposal.id });
+      // Reset feedback UI pins/selectors
+      setIsFeedbackModeActive(false);
+      setIsPinDropModeActive(false);
+      setSelectedElementSelector(null);
+      setCurrentPinLocation(null);
 
-    showToast(`Feedback captured! AI generated Proposal #${proposal.id.slice(-6)} for Admin review.`);
-    return newFb;
+      addAuditLog('FEEDBACK_SUBMITTED', `Feedback submitted: "${newFb.title}" for ${newFb.targetPage}`, { feedbackId: newFb.id });
+      
+      if (isAIGenerated) {
+        addAuditLog('PROPOSAL_GENERATED', `Google Gemini (${selectedModel}) synthesized Change Proposal "${proposal.title}" (Priority: ${proposal.priority.toUpperCase()})`, { proposalId: proposal.id });
+        showToast(`⚡ Live Gemini AI generated Proposal #${proposal.id.slice(-6)}! Ready for Admin Review.`);
+      } else {
+        addAuditLog('PROPOSAL_GENERATED', `Autonomous Engine generated Change Proposal "${proposal.title}" (Priority: ${proposal.priority.toUpperCase()})`, { proposalId: proposal.id });
+        showToast(`AI generated Proposal #${proposal.id.slice(-6)} for Admin review.`);
+      }
+
+      return newFb;
+    } finally {
+      setIsGeneratingProposal(false);
+    }
   };
 
   // 2. Trigger synthetic scenario
@@ -328,7 +478,7 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
     setDeployments(prev => [newDeployment, ...prev.map(d => ({ ...d, status: 'superseded' as const }))]);
     setCurrentProdVersion(versionNumber);
 
-    // Apply flags to Production!
+    // Apply flags to Production
     applyFlagsForProposal(prop, false);
 
     // Update proposal & feedback status
@@ -353,12 +503,7 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
 
     if (targetVersion === 'v1.0.0') {
       // Revert all flags
-      setProdEvolutionFlags({
-        loginMobileOptimized: false,
-        pricingHighContrast: false,
-        heroDynamicCTA: false,
-        dashboardComfortDensity: false,
-      });
+      setProdEvolutionFlags(DEFAULT_FLAGS);
     }
 
     setCurrentProdVersion(targetVersion);
@@ -371,20 +516,28 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
     showToast(`⏮️ Successfully rolled back to ${targetVersion}. Production UI restored.`);
   };
 
-  // Initial seed on mount
-  useEffect(() => {
-    if (feedbacks.length === 0) {
-      // Preload initial classic feedback: Mobile Login Button Issue
-      const initialScenario = SYNTHETIC_PERSONA_SCENARIOS[0];
-      const initialFb = generateSyntheticFeedback(initialScenario);
-      const initialProp = createProposalFromFeedback(initialFb);
-      initialFb.proposalId = initialProp.id;
-      
-      setFeedbacks([initialFb]);
-      setProposals([initialProp]);
-      setActiveProposal(initialProp);
-    }
-  }, []);
+  // 9. Reset to Factory Defaults
+  const resetToDefaults = () => {
+    const seed = getInitialInitialSeed();
+    setFeedbacks([seed.fb]);
+    setProposals([seed.prop]);
+    setActiveProposal(seed.prop);
+    setDeployments(INITIAL_DEPLOYMENTS);
+    setCurrentProdVersion('v1.0.0');
+    setAuditLogs(INITIAL_AUDIT_LOGS);
+    setProdEvolutionFlags(DEFAULT_FLAGS);
+    setStagingEvolutionFlags(DEFAULT_FLAGS);
+
+    localStorage.removeItem(STORAGE_KEYS.FEEDBACKS);
+    localStorage.removeItem(STORAGE_KEYS.PROPOSALS);
+    localStorage.removeItem(STORAGE_KEYS.DEPLOYMENTS);
+    localStorage.removeItem(STORAGE_KEYS.AUDIT_LOGS);
+    localStorage.removeItem(STORAGE_KEYS.PROD_FLAGS);
+    localStorage.removeItem(STORAGE_KEYS.STAGING_FLAGS);
+    localStorage.removeItem(STORAGE_KEYS.PROD_VERSION);
+
+    showToast('✨ System restored to factory defaults and clean demo baseline.');
+  };
 
   return (
     <EvolutionSystemContext.Provider
@@ -413,6 +566,11 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
         auditLogs,
         prodEvolutionFlags,
         stagingEvolutionFlags,
+        geminiApiKey,
+        setGeminiApiKey,
+        selectedModel,
+        setSelectedModel,
+        isGeneratingProposal,
         submitUserFeedback,
         triggerSyntheticScenario,
         approveProposal,
@@ -421,6 +579,7 @@ export const EvolutionSystemProvider: React.FC<{ children: React.ReactNode }> = 
         startAutomatedTesting,
         deployProposalToProd,
         rollbackToVersion,
+        resetToDefaults,
         toastMessage,
         showToast,
       }}
